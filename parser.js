@@ -8,7 +8,6 @@ $(document).ready(function() {
         document.getElementById("input").files[i]["name"]
       );
     }
-    crossReference(fileResults[0], fileResults[1]);
   }
 
   function onChange(event, filename) {
@@ -23,6 +22,7 @@ $(document).ready(function() {
         fileResults.push(parseCSV(temp));
       }
       console.log(fileResults);
+      crossReference(fileResults[0], fileResults[1]);
     };
     reader.readAsText(event);
   }
@@ -31,16 +31,34 @@ $(document).ready(function() {
 });
 
 function crossReference(result1, result2) {
-  console.log(
-    result1.map((a, i) => Object.assign({}, a, { myNewAttribute: result2[i] }))
-  );
-  // for (var i = 0; i < result1.length; i++) {
-  //   for (var x = 0; x < result2.length; x++) {
-  //     if (result1[i]["SBID"]  == result2[x]["SBID"]) {
-
-  //     }
-  //   }
-  // }
+  var retArr = [];
+  for (var index1 in result1) {
+    var sbid = result1[index1]["SBID"];
+    for (var index2 in result2) {
+      //CASE:SBID match
+      if (result2[index2]["SBID"] == sbid) {
+        var remIndex = result2.indexOf(result2[index2]);
+        var newDict = Object.assign({}, result1[index1], result2[index2]);
+        console.log(newDict);
+        retArr.push(newDict);
+        result2.splice(remIndex, 1);
+        sbid = "";
+        break;
+      }
+    }
+    //CASE:Dictionary has been added
+    if (sbid != "") {
+      retArr.push(result1[index1]);
+    }
+  }
+  //CASE: Leftover dictionaries
+  if (result2.length != 0) {
+    for (var index in result2) {
+      retArr.push(result2[index]);
+    }
+  }
+  console.log(retArr);
+  return retArr;
 }
 
 function parseCSV(splitArray) {
@@ -73,16 +91,6 @@ function parseCSV(splitArray) {
   }
   return studentDictArr;
 }
-
-// function setupDictionary(splitArray) {
-//   var currentStudentInfo = {};
-//   for (var col = 0; col < splitArray[0].length; col++) {
-//     if (currentStudentInfo[splitArray[0][col]] != "") {
-//       currentStudentInfo[splitArray[0][col]] = "";
-//     }
-//   }
-//   return currentStudentInfo;
-// }
 
 function setupDictionary(splitArray, indexStart, indexEnd) {
   var currentStudentInfo = {};
@@ -141,4 +149,11 @@ function parseGradeCSV(splitArray) {
     }
   }
   return studentDictArr;
+}
+
+//Student Status CSV
+function genStudentStatusCSV(studentInfoArr) {
+  for (var i = 0; i < studentInfoArr.length; i++) {
+    studentInfoArr[i];
+  }
 }
