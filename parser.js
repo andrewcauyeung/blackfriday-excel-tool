@@ -242,6 +242,16 @@ function filterUndergrad(courseNumber) {
   return true;
 }
 
+function downloadHandler(csvArr, filename) {
+  var a = document.createElement("a");
+  a.href = "data:text/csv;charset=utf-8," + encodeURIComponent(csvArr);
+  a.target = "_blank";
+  a.download = filename;
+
+  document.body.appendChild(a);
+  a.click();
+}
+
 //Student Status CSV
 function genStudentGradeImport(studentInfoArr) {
   var csvArr = [
@@ -257,6 +267,7 @@ function genStudentGradeImport(studentInfoArr) {
       "uniqueFields\n"
     ]
   ];
+
   for (var i = 1; i < studentInfoArr.length; i++) {
     var studentID = studentInfoArr[i]["SBID"];
     var standing = studentInfoArr[i]["Level"];
@@ -279,6 +290,7 @@ function genStudentGradeImport(studentInfoArr) {
       } else {
         continue;
       }
+
       var courseName = studentInfoArr[i]["Courses"][x]["Title"];
       var uniqueField = studentID + semester + course;
       var row = [
@@ -295,14 +307,7 @@ function genStudentGradeImport(studentInfoArr) {
     }
   }
 
-  // var csvString = csv.join("%0A");
-  var a = document.createElement("a");
-  a.href = "data:text/csv;charset=utf-8," + encodeURIComponent(csvArr);
-  a.target = "_blank";
-  a.download = "myFile.csv";
-
-  document.body.appendChild(a);
-  a.click();
+  downloadHandler(csvArr, "grades.csv");
 }
 
 function genStudentComment(studentInfoArr) {
@@ -316,11 +321,23 @@ function genStudentComment(studentInfoArr) {
     csvArr.push(row);
   }
 
-  var a = document.createElement("a");
-  a.href = "data:text/csv;charset=utf-8," + encodeURIComponent(csvArr);
-  a.target = "_blank";
-  a.download = "status.csv";
+  downloadHandler(csvArr, "status.csv");
+}
 
-  document.body.appendChild(a);
-  a.click();
+function genStudentsImport(studentInfoArr) {}
+
+function genCourseImport(studentInfoArr) {
+  var coursesArr = ["", "Course Number", "Course Name", "Track"];
+  for (var i = 0; i < studentInfoArr.length; i++) {
+    var courses = studentInfoArr[i][Courses];
+    for (var x = 0; x < courses.length; x++) {
+      var courseName = courses[x]["Course"] + courses[x]["Number"];
+      var courseTitle = courses[x]["Title"];
+    }
+  }
+}
+
+function createTable(studentDictArr) {
+  function genTableHeader() {}
+  for (var i = 0; i < studentDictArr.length; i++) {}
 }
