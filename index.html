@@ -8,12 +8,14 @@
       href="https://fonts.googleapis.com/icon?family=Material+Icons"
       rel="stylesheet"
     />
-    <link href="custom.css" rel="stylesheet" />
+    <link href="css/custom.css" rel="stylesheet" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
-    <script src="jquery-3.3.1.min.js"></script>
-    <script src="jquery.csv.min.js"></script>
-    <script src="side-nav.js"></script>
-    <script src="parser.js"></script>
+    <script src="js/jquery-3.3.1.min.js"></script>
+    <script src="js/jquery.csv.min.js"></script>
+    <script src="js/side-nav.js"></script>
+    <script src="js/index-ui.js"></script>
+    <script src="js/generate-csv.js"></script>
+    <script src="js/parser.js"></script>
   </head>
   <body>
     <ul id="slide-out" class="sidenav sidenav-fixed">
@@ -26,6 +28,9 @@
         <h5 class="title">
           Computer Science Department Tools
         </h5>
+      </li>
+      <li>
+        <a href="http://devbf.cs.stonybrook.edu/">Black Friday Staging</a>
       </li>
     </ul>
     <a href="#" data-target="slide-out" class="sidenav-trigger"
@@ -42,32 +47,33 @@
     </header>
     <main>
       <div class="container">
-        <div class="file-field input-field">
-          <div class="btn">
-            <span>File</span>
-            <input id="input" type="file" multiple />
+        <div class="file-upload">
+          <div class="file-field input-field">
+            <div class="btn">
+              <span>File</span>
+              <input id="input" type="file" multiple />
+            </div>
+            <div class="file-path-wrapper">
+              <input
+                class="file-path validate"
+                type="text"
+                placeholder="Upload one or more files"
+              />
+            </div>
           </div>
-          <div class="file-path-wrapper">
-            <input
-              class="file-path validate"
-              type="text"
-              placeholder="Upload one or more files"
-            />
-          </div>
+          <button
+            class="btn waves-effect waves-light"
+            id="file-submit"
+            type="submit"
+            name="action"
+          >
+            Submit
+            <i class="material-icons right">send</i>
+          </button>
         </div>
-        <button
-          class="btn waves-effect waves-light"
-          id="file-submit"
-          type="submit"
-          name="action"
-        >
-          Submit
-          <i class="material-icons right">send</i>
-        </button>
-
-        <table class="responsive-table">
-          <!--STUDENT TABLE CONTAINER-->
-        </table>
+        <div class="card-container row">
+          <!--3 Cards -->
+        </div>
       </div>
     </main>
   </body>
