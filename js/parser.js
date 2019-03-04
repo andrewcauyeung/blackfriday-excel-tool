@@ -1,4 +1,4 @@
-var fileResults = [];
+var fileResults = {};
 
 $(document).ready(function() {
   function submitFile() {
@@ -15,30 +15,45 @@ $(document).ready(function() {
       reader.onload = function(event) {
         var temp = event.target.result;
         console.log(event.target.result);
+        //CASE: is status.txt
         if (filename.includes("txt")) {
           temp = temp.split(/[:\n]/);
           console.log(temp);
-          fileResults.push(parseStatus(temp));
+          //fileResults.push(parseStatus(temp));
+          fileResults["status"] = parseStatus(temp);
           //fileResults = crossReference(fileResults[0], fileResults[1]);
-        } else if (filename.includes("grades")) {
+        }
+        //CASE: Is grades csv
+        else if (filename.includes("grades")) {
           temp = $.csv.toArrays(temp);
           console.log(temp);
-          fileResults.push(parseGradeCSV(temp));
+          //fileResults.push(parseGradeCSV(temp));
+          fileResults["grades"] = parseGradeCSV(temp);
           //fileResults = crossReference(fileResults[0], fileResults[1]);
-        } else if (filename.includes("info")) {
+        }
+        //CASE: Is student info csv
+        else if (filename.includes("info")) {
           temp = $.csv.toArrays(temp);
           console.log(temp);
-          fileResults.push(parseCSV(temp));
+          //fileResults.push(parseCSV(temp));
+          fileResults["student"] = parseCSV(temp);
           // fileResults = crossReference(fileResults[0], fileResults[1]);
+        }
+        //CASE: Is student netID xml
+        else if (filename.includes("xml")) {
+          console.log(temp);
+          fileResults["netid"] = parseXML(temp);
+          //fileResults.push(parseXML(temp));
         }
         if (!--count) {
           console.log(fileResults);
           appendCard("Student Grade Import", "genStudentGradeImport()");
-          appendCard("Student Status Import", "genStudentComment()");
+          appendCard("Student Status Import", "genStudentStatusImport()");
+          appendCard("Student User Import", "genStudentUserImport()");
+          appendCard("Student Comments Import", "genStudentCommentsImport()");
           //genStudentGradeImport(fileResults[0]);
           //genStudentComment(fileResults[1]);
         }
-        //console.log(fileResults);
       };
       reader.readAsText(event);
     }
@@ -80,6 +95,33 @@ function crossReference(result1, result2) {
     console.log(retArr);
   }
   return retArr;
+}
+
+function myTrim(x) {
+  return x.replace(/^\s+|\s+$/gm, "");
+}
+
+function parseXML(xmlTxt) {
+  var parser = new DOMParser();
+  var xmlDoc = parser.parseFromString(xmlTxt, "text/xml");
+  var lastnameArr = xmlDoc.getElementsByTagName("lastname");
+  var firstnameArr = xmlDoc.getElementsByTagName("firstname");
+  var urlArr = xmlDoc.getElementsByTagName("url");
+  console.log(urlArr);
+  var students = [];
+  for (var i = 0; i < lastnameArr.length; i++) {
+    var temp = {
+      lastname: myTrim(lastnameArr[i].childNodes[0].nodeValue),
+      firstname: myTrim(firstnameArr[i].childNodes[0].nodeValue)
+    };
+    if (urlArr[i].childNodes.length != 0) {
+      temp["netid"] = myTrim(urlArr[i].childNodes[0].nodeValue.split("~")[1]);
+    } else {
+      temp["netid"] = "";
+    }
+    students.push(temp);
+  }
+  return students;
 }
 
 function updateDictionary(dictionary, key, value) {
@@ -245,25 +287,4 @@ function filterUndergrad(courseNumber) {
   return true;
 }
 
-function downloadHandler(csvArr, filename) {
-  var a = document.createElement("a");
-  a.href = "data:text/csv;charset=utf-8," + encodeURIComponent(csvArr);
-  a.target = "_blank";
-  a.download = filename;
-
-  document.body.appendChild(a);
-  a.click();
-}
-
 function genStudentsImport(studentInfoArr) {}
-
-function genCourseImport(studentInfoArr) {
-  var coursesArr = ["", "Course Number", "Course Name", "Track"];
-  for (var i = 0; i < studentInfoArr.length; i++) {
-    var courses = studentInfoArr[i][Courses];
-    for (var x = 0; x < courses.length; x++) {
-      var courseName = courses[x]["Course"] + courses[x]["Number"];
-      var courseTitle = courses[x]["Title"];
-    }
-  }
-}

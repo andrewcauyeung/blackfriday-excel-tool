@@ -18,7 +18,7 @@ function setupDownload() {
 
 //Generates Student Grades CSV
 function genStudentGradeImport() {
-  studentInfoArr = fileResults[0];
+  studentInfoArr = fileResults["grades"];
   //Adds a space in the unique ID
   function fixSemester(semester) {
     var temp = semester.split("");
@@ -89,8 +89,8 @@ function genStudentGradeImport() {
 }
 
 //Generates Student Status CSV
-function genStudentComment(studentInfoArr) {
-  studentInfoArr = fileResults[1];
+function genStudentStatusImport() {
+  studentInfoArr = fileResults["status"];
   var csvArr = ["", "ID", "Status", "Semester", "Validator\n"];
   for (var i = 1; i < studentInfoArr.length; i++) {
     var studentID = studentInfoArr[i]["SBID"];
@@ -104,4 +104,66 @@ function genStudentComment(studentInfoArr) {
   downloadHandler(csvArr, "status.csv");
 }
 
-//
+function genStudentUserImport() {
+  var studentInfoArr = fileResults["student"];
+  var netidArr = fileResults["netid"];
+  var csvArr = ["", "NetID", "Email\n"];
+
+  for (var i = 0; i < studentInfoArr.length; i++) {
+    var hasNetID = false;
+    for (var x = 0; x < netidArr.length; x++) {
+      var email = studentInfoArr[i]["EMAIL"];
+      if (
+        studentInfoArr[i]["FIRST NAME"] == netidArr[x]["firstname"] &&
+        studentInfoArr[i]["LAST NAME"] == netidArr[x]["lastname"]
+      ) {
+        var netid = netidArr[x]["netid"];
+        var row = [netid, email + "\n"];
+        csvArr.push(row);
+        hasNetID = true;
+      }
+    }
+    if (hasNetID == false) {
+      var email = studentInfoArr[i]["EMAIL"];
+      var netid = "";
+      var row = [netid, email + "\n"];
+      csvArr.push(row);
+    }
+  }
+  downloadHandler(csvArr, "NewStudentUser.csv");
+}
+
+//Generate Student Comments CSV
+function genStudentCommentsImport() {
+  studentInfoArr = fileResults["student"];
+  var commentsArr = ["", "Student ID", "Comments", "Dates", "Validator\n"];
+  for (var i = 1; i < studentInfoArr.length; i++) {
+    var comments = studentInfoArr[i]["COMMENTS"];
+    //student id
+    var sbid = studentInfoArr[i]["SBID"];
+    for (var x = 0; x < comments.length; x++) {
+      var dateArr = comments[x].split("-")[0].split("/");
+      var comment = '"' + comments[x].replace(/\r?\n|\r/g, "") + '"';
+      //date
+      var date = dateArr[0] + "/1/" + dateArr[1];
+      var validator = sbid + "-" + date + "-" + comments[x];
+      validator = validator.replace(/\r?\n|\r/g, "");
+      var row = [sbid, comment, date, validator + "\n"];
+      commentsArr.push(row);
+    }
+  }
+  downloadHandler(commentsArr, "NewStudentComments.csv");
+}
+
+//Generate Course CSV
+function genCourseImport() {
+  studentInfoArr = fileResults[0];
+  var coursesArr = ["", "Course Number", "Course Name", "Track"];
+  for (var i = 0; i < studentInfoArr.length; i++) {
+    var courses = studentInfoArr[i][Courses];
+    for (var x = 0; x < courses.length; x++) {
+      var courseName = courses[x]["Course"] + courses[x]["Number"];
+      var courseTitle = courses[x]["Title"];
+    }
+  }
+}
