@@ -104,6 +104,61 @@ function genStudentStatusImport() {
   downloadHandler(csvArr, "status.csv");
 }
 
+//Geneartes Student Adder CSV
+function genStudentAdderImport() {
+  var studentInfoArr = fileResults["student"];
+  var csvArr = [
+    "",
+    "Student ID",
+    "Last Name",
+    "First Name",
+    "Gender",
+    "Country of Origin",
+    "Date Entered",
+    "Email",
+    "NetID",
+    "RPE Passed\n"
+  ];
+
+  for (var i = 1; i < studentInfoArr.length; i++) {
+    var sbid = studentInfoArr[i]["SBID"];
+    var lastname = studentInfoArr[i]["LAST NAME"];
+    var firstname = studentInfoArr[i]["FIRST NAME"];
+    var gender = studentInfoArr[i]["GENDER"];
+    var rpe = studentInfoArr[i]["RPE PASSED"];
+    var origin = studentInfoArr[i]["COUNTRY OF ORGIN"];
+    var entered = studentInfoArr[i]["DATE ENTERED PROGRAM"];
+    var email = studentInfoArr[i]["EMAIL"];
+
+    var netidArr = fileResults["netid"];
+
+    var netid = "";
+    for (var x = 0; x < netidArr.length; x++) {
+      if (
+        lastname == netidArr[x]["lastname"] &&
+        firstname == netidArr[x]["firstname"]
+      ) {
+        netid = netidArr[x]["netid"];
+      }
+    }
+
+    var row = [
+      sbid,
+      lastname,
+      firstname,
+      gender,
+      origin,
+      entered,
+      email,
+      netid,
+      rpe + "\n"
+    ];
+    csvArr.push(row);
+  }
+  downloadHandler(csvArr, "NewStudentAdder.csv");
+}
+
+//Generates Student User CSV
 function genStudentUserImport() {
   var studentInfoArr = fileResults["student"];
   var netidArr = fileResults["netid"];
@@ -131,6 +186,39 @@ function genStudentUserImport() {
     }
   }
   downloadHandler(csvArr, "NewStudentUser.csv");
+}
+
+//Generates TA Eval CSV
+function genEvalImport() {
+  var studentInfoArr = fileResults["student"];
+  var taAllocationArr = fileResults["allocation"];
+  var taUserArr = fileResults["taUser"];
+  var csvArr = [
+    "",
+    "Full Name",
+    "TA Fraction",
+    "Assigned Course",
+    "TA Evaluation",
+    "Advisor Username",
+    "Date",
+    "Semester",
+    "TA Eval Unique Validator\n"
+  ];
+
+  for (var i = 0; i < studentInfoArr.length; i++) {
+    var evalArr = studentInfoArr[i]["TA EVALS"];
+
+    var sbid = studentInfoArr[i]["SBID"];
+    var fullName =
+      studentInfoArr[i]["FIRST NAME"] + " " + studentInfoArr[i]["LAST NAME"];
+    var advisor = studentInfoArr[i]["ADVISOR"];
+    var semester = "Fall 2018";
+    for (var x = 0; x < studentInfoArr.length; x++) {
+      var taEval = evalArr[x];
+
+      csvArr.push(row);
+    }
+  }
 }
 
 //Generate Student Comments CSV

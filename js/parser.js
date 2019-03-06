@@ -49,8 +49,9 @@ $(document).ready(function() {
           console.log(fileResults);
           appendCard("Student Grade Import", "genStudentGradeImport()");
           appendCard("Student Status Import", "genStudentStatusImport()");
+          appendCard("Student Adder Import", "genStudentAdderImport()");
           appendCard("Student User Import", "genStudentUserImport()");
-          appendCard("Student Comments Import", "genStudentCommentsImport()");
+          appendCard("Student Comm. Import", "genStudentCommentsImport()");
           //genStudentGradeImport(fileResults[0]);
           //genStudentComment(fileResults[1]);
         }
