@@ -38,6 +38,10 @@ $(document).ready(function() {
           //fileResults.push(parseCSV(temp));
           fileResults["student"] = parseCSV(temp);
           // fileResults = crossReference(fileResults[0], fileResults[1]);
+        } else if (filename.includes("Faculty")) {
+          temp = $.csv.toArrays(temp);
+          console.log(temp);
+          fileResults["faculty"] = parseFaculty(temp);
         }
         //CASE: Is student netID xml
         else if (filename.includes("xml")) {
@@ -47,11 +51,27 @@ $(document).ready(function() {
         }
         if (!--count) {
           console.log(fileResults);
-          appendCard("Student Grade Import", "genStudentGradeImport()");
-          appendCard("Student Status Import", "genStudentStatusImport()");
-          appendCard("Student Adder Import", "genStudentAdderImport()");
-          appendCard("Student User Import", "genStudentUserImport()");
-          appendCard("Student Comm. Import", "genStudentCommentsImport()");
+          appendCard(
+            "Student Grade Import",
+            "genStudentGradeImport()",
+            "grades"
+          );
+          appendCard(
+            "Student Status Import",
+            "genStudentStatusImport()",
+            "status"
+          );
+          appendCard(
+            "Student Adder Import",
+            "genStudentAdderImport()",
+            "status"
+          );
+          appendCard("Student User Import", "genStudentUserImport()", "status");
+          appendCard(
+            "Student Comm. Import",
+            "genStudentCommentsImport()",
+            "status"
+          );
           //genStudentGradeImport(fileResults[0]);
           //genStudentComment(fileResults[1]);
         }
@@ -129,6 +149,20 @@ function updateDictionary(dictionary, key, value) {
   var tempValue = dictionary[key];
   var newValue = tempValue.concat(value);
   dictionary[key] = newValue;
+}
+
+function parseFaculty(splitArray) {
+  var facultyDictArr = [];
+
+  for (var i = 1; i < splitArray.length; i++) {
+    var currentFaculty = splitArray[i];
+    var currentFacultyInfo = {};
+    for (var x = 0; x < currentFaculty.length; x++) {
+      currentFacultyInfo[splitArray[0][x]] = currentFaculty[x];
+    }
+    facultyDictArr.push(currentFacultyInfo);
+  }
+  return facultyDictArr;
 }
 
 function parseCSV(splitArray) {

@@ -1,4 +1,4 @@
-function appendCard(description, downloadLink) {
+function appendCard(description, downloadLink, importType) {
   var downloadStr = "";
   var descriptionStr = "";
 
@@ -11,7 +11,13 @@ function appendCard(description, downloadLink) {
   var cardHtml2 = "</div>" + '<div class="card-action">';
 
   var cardHtml3 =
-    '<a href="#">View Table</a>' + "</div>" + "</div>" + "</div>" + "</div>";
+    "<button data-target='table-modal' onclick=\"generateTable('" +
+    importType +
+    "')\" class='btn modal-trigger'>View Table</button> " +
+    "</div>" +
+    "</div>" +
+    "</div>" +
+    "</div>";
 
   descriptionStr = descriptionStr.concat(
     '<span class="card-title activator grey-text text-darken-4">' +

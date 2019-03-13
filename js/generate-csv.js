@@ -192,7 +192,7 @@ function genStudentUserImport() {
 function genEvalImport() {
   var studentInfoArr = fileResults["student"];
   var taAllocationArr = fileResults["allocation"];
-  var taUserArr = fileResults["taUser"];
+  var UserArr = fileResults["faculty"];
   var csvArr = [
     "",
     "Full Name",
