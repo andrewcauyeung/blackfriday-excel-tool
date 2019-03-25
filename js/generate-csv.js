@@ -95,7 +95,10 @@ function genStudentStatusImport() {
   for (var i = 1; i < studentInfoArr.length; i++) {
     var studentID = studentInfoArr[i]["SBID"];
     var status = studentInfoArr[i]["Status"];
-    var semester = "Spring 2019";
+    if (status[0] != '"' && status[status.length - 1] != '"') {
+      status = '"' + studentInfoArr[i]["Status"] + '"';
+    }
+    var semester = "Fall 2018";
     var validator = studentID + "-" + semester;
     var row = [studentID, status, semester, validator + "\n"];
     csvArr.push(row);
@@ -130,15 +133,15 @@ function genStudentAdderImport() {
     var entered = studentInfoArr[i]["DATE ENTERED PROGRAM"];
     var email = studentInfoArr[i]["EMAIL"];
 
-    var netidArr = fileResults["netid"];
+    var netidArr = fileResults["grad"];
 
     var netid = "";
     for (var x = 0; x < netidArr.length; x++) {
       if (
-        lastname == netidArr[x]["lastname"] &&
-        firstname == netidArr[x]["firstname"]
+        lastname == netidArr[x]["Surname"] &&
+        firstname == netidArr[x]["GivenName"]
       ) {
-        netid = netidArr[x]["netid"];
+        netid = netidArr[x]["SamAccountName"];
       }
     }
 
@@ -161,7 +164,7 @@ function genStudentAdderImport() {
 //Generates Student User CSV
 function genStudentUserImport() {
   var studentInfoArr = fileResults["student"];
-  var netidArr = fileResults["netid"];
+  var netidArr = fileResults["grad"];
   var csvArr = ["", "NetID", "Email\n"];
 
   for (var i = 0; i < studentInfoArr.length; i++) {
@@ -169,10 +172,10 @@ function genStudentUserImport() {
     for (var x = 0; x < netidArr.length; x++) {
       var email = studentInfoArr[i]["EMAIL"];
       if (
-        studentInfoArr[i]["FIRST NAME"] == netidArr[x]["firstname"] &&
-        studentInfoArr[i]["LAST NAME"] == netidArr[x]["lastname"]
+        studentInfoArr[i]["FIRST NAME"] == netidArr[x]["GivenName"] &&
+        studentInfoArr[i]["LAST NAME"] == netidArr[x]["Surname"]
       ) {
-        var netid = netidArr[x]["netid"];
+        var netid = netidArr[x]["SamAccountName"];
         var row = [netid, email + "\n"];
         csvArr.push(row);
         hasNetID = true;
@@ -191,10 +194,11 @@ function genStudentUserImport() {
 //Generates TA Eval CSV
 function genEvalImport() {
   var studentInfoArr = fileResults["student"];
-  var taAllocationArr = fileResults["allocation"];
-  var UserArr = fileResults["faculty"];
+  var taAllocationDict = fileResults["ta-allocation"];
+  var facultyDict = fileResults["faculty"];
   var csvArr = [
     "",
+    "Student ID",
     "Full Name",
     "TA Fraction",
     "Assigned Course",
@@ -205,20 +209,52 @@ function genEvalImport() {
     "TA Eval Unique Validator\n"
   ];
 
-  for (var i = 0; i < studentInfoArr.length; i++) {
-    var evalArr = studentInfoArr[i]["TA EVALS"];
+  for (var i = 1; i < studentInfoArr.length; i++) {
+    //Needed to get additonal information
+    var advisor = studentInfoArr[i]["ADVISOR"];
 
+    //CSV information
     var sbid = studentInfoArr[i]["SBID"];
     var fullName =
       studentInfoArr[i]["FIRST NAME"] + " " + studentInfoArr[i]["LAST NAME"];
-    var advisor = studentInfoArr[i]["ADVISOR"];
-    var semester = "Fall 2018";
-    for (var x = 0; x < studentInfoArr.length; x++) {
-      var taEval = evalArr[x];
-
-      csvArr.push(row);
+    var fraction = 1;
+    var course = "";
+    if (taAllocationDict[sbid] != undefined) {
+      fraction = taAllocationDict[sbid]["Fraction"];
+      course = taAllocationDict[sbid]["Assigned Course"];
     }
+
+    var date = "12/1/2018";
+    var semester = "Fall 2018";
+    var validator = advisorUsername + "-" + semester + "-" + sbid;
+
+    for (var x = 0; x < studentInfoArr[i]["TA EVALS"].length; x++) {
+      //TA Evaluation
+      var evalArr = studentInfoArr[i]["TA EVALS"][x];
+      if (evalArr[0] != '"' && evalArr[evalArr.length - 1] != '"') {
+        evalArr = '"' + studentInfoArr[i]["TA EVALS"][x] + '"';
+      }
+      evalArr = evalArr.replace(/\r?\n|\r/g, "");
+    }
+
+    var advisorUsername = "";
+    if (facultyDict[advisor] != undefined) {
+      var advisorUsername = facultyDict[advisor]["samaccountname"];
+    }
+    var row = [
+      sbid,
+      fullName,
+      fraction,
+      course,
+      evalArr,
+      advisorUsername,
+      date,
+      semester,
+      validator + "\n"
+    ];
+    csvArr.push(row);
   }
+  downloadHandler(csvArr, "NewTaEval.csv");
 }
 
 //Generate Student Comments CSV
@@ -234,7 +270,7 @@ function genStudentCommentsImport() {
       var comment = '"' + comments[x].replace(/\r?\n|\r/g, "") + '"';
       //date
       var date = dateArr[0] + "/1/" + dateArr[1];
-      var validator = sbid + "-" + date + "-" + comments[x];
+      var validator = '"' + sbid + "-" + comments[x] + '"';
       validator = validator.replace(/\r?\n|\r/g, "");
       var row = [sbid, comment, date, validator + "\n"];
       commentsArr.push(row);

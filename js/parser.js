@@ -48,6 +48,14 @@ $(document).ready(function() {
           console.log(temp);
           fileResults["netid"] = parseXML(temp);
           //fileResults.push(parseXML(temp));
+        } else if (filename.includes("Grad")) {
+          temp = $.csv.toArrays(temp);
+          console.log(temp);
+          fileResults["grad"] = parseFaculty(temp);
+        } else if (filename.includes("TA-Allocation")) {
+          temp = $.csv.toArrays(temp);
+          console.log(temp);
+          fileResults["ta-allocation"] = parseTaAllocation(temp);
         }
         if (!--count) {
           console.log(fileResults);
@@ -64,14 +72,15 @@ $(document).ready(function() {
           appendCard(
             "Student Adder Import",
             "genStudentAdderImport()",
-            "status"
+            "student"
           );
           appendCard("Student User Import", "genStudentUserImport()", "status");
           appendCard(
             "Student Comm. Import",
             "genStudentCommentsImport()",
-            "status"
+            "comments"
           );
+          appendCard("Student TA Eval.", "genEvalImport()", "eval");
           //genStudentGradeImport(fileResults[0]);
           //genStudentComment(fileResults[1]);
         }
@@ -122,6 +131,24 @@ function myTrim(x) {
   return x.replace(/^\s+|\s+$/gm, "");
 }
 
+function parseTaAllocation(splitArray) {
+  var taAllocationArr = {};
+
+  for (var i = 1; i < splitArray.length; i++) {
+    var facutly = {};
+    for (var x = 0; x < splitArray[x].length; x++) {
+      facutly[splitArray[0][x]] = splitArray[i][x];
+    }
+    taAllocationArr[facutly["ID"]] = facutly;
+  }
+  return taAllocationArr;
+}
+
+/**
+ * Parses the graduate XML file passed in gotten from CS SBU Drupal
+ * @param {*} xmlTxt - xml file passed in
+ * @returns - dictionary about the graduate
+ */
 function parseXML(xmlTxt) {
   var parser = new DOMParser();
   var xmlDoc = parser.parseFromString(xmlTxt, "text/xml");
@@ -151,8 +178,13 @@ function updateDictionary(dictionary, key, value) {
   dictionary[key] = newValue;
 }
 
+/**
+ * Parses an array of faculty into a dictionary with faculty information
+ * @param {*} splitArray - array of faculty members
+ * @returns - dictionary of faculty informaiton
+ */
 function parseFaculty(splitArray) {
-  var facultyDictArr = [];
+  var facultyDict = {};
 
   for (var i = 1; i < splitArray.length; i++) {
     var currentFaculty = splitArray[i];
@@ -160,11 +192,16 @@ function parseFaculty(splitArray) {
     for (var x = 0; x < currentFaculty.length; x++) {
       currentFacultyInfo[splitArray[0][x]] = currentFaculty[x];
     }
-    facultyDictArr.push(currentFacultyInfo);
+    facultyDict[currentFacultyInfo["Name"]] = currentFacultyInfo;
   }
-  return facultyDictArr;
+  return facultyDict;
 }
 
+/**
+ * Parses arraay of Student Info that was previously gotten form the a csv.
+ * @param {*} splitArray - Array of students information perviously parsed by csvtoarry library
+ * @returns - dictionary of student information
+ */
 function parseCSV(splitArray) {
   var currentStudentInfo = setupDictionary(splitArray);
   var studentDictArr = [];
@@ -222,6 +259,12 @@ function parseCSV(splitArray) {
   return studentDictArr;
 }
 
+/**
+ *
+ * @param {*} splitArray
+ * @param {*} indexStart
+ * @param {*} indexEnd
+ */
 function setupDictionary(splitArray, indexStart, indexEnd) {
   var currentStudentInfo = {};
   if (indexEnd == null) {
@@ -295,7 +338,8 @@ function parseStatus(splitArray) {
     } else if (i % 3 == 1) {
       currentStudentInfo["NAME"] = splitArray[i];
     } else if (i % 3 == 2) {
-      currentStudentInfo["Status"] = splitArray[i].replace(/\r?\n|\r/g, "");
+      //currentStudentInfo["Status"] = splitArray[i].replace(/\r?\n|\r/g, "");
+      currentStudentInfo["Status"] = myTrim(splitArray[i]);
     }
   }
   return studentDictArr;
