@@ -80,7 +80,7 @@ $(document).ready(function() {
             "genStudentCommentsImport()",
             "comments"
           );
-          appendCard("Student TA Eval.", "genEvalImport()", "eval");
+          appendCard("Student TA Eval. (WIP)", "genEvalImport()", "eval");
           //genStudentGradeImport(fileResults[0]);
           //genStudentComment(fileResults[1]);
         }

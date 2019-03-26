@@ -260,7 +260,7 @@ function genEvalImport() {
 //Generate Student Comments CSV
 function genStudentCommentsImport() {
   studentInfoArr = fileResults["student"];
-  var commentsArr = ["", "Student ID", "Comments", "Dates", "Validator\n"];
+  var commentsArr = ["", "Student ID", "Comment", "Date", "Validator\n"];
   for (var i = 1; i < studentInfoArr.length; i++) {
     var comments = studentInfoArr[i]["COMMENTS"];
     //student id
