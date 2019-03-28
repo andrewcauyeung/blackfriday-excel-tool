@@ -135,11 +135,37 @@ function parseTaAllocation(splitArray) {
   var taAllocationArr = {};
 
   for (var i = 1; i < splitArray.length; i++) {
-    var facutly = {};
+    var student = {};
     for (var x = 0; x < splitArray[x].length; x++) {
-      facutly[splitArray[0][x]] = splitArray[i][x];
+      student[splitArray[0][x]] = splitArray[i][x];
     }
-    taAllocationArr[facutly["ID"]] = facutly;
+    if (taAllocationArr[student["Last Name"] + student["ID"]] != null) {
+      var course = {
+        "Assigned Course": student["Assigned Course"],
+        Fraction: student["Fraction"],
+        "Assigned Course Name": student["Assigned Course Name"],
+        "Instructor Full Name": student["Instructor Full Name"]
+      };
+      taAllocationArr[student["Last Name"] + student["ID"]]["Courses"][
+        student["Assigned Course"]
+      ] = course;
+    } else {
+      var assignedCourse = student["Assigned Course"];
+      var finalDict = {
+        ID: student["ID"],
+        "Last Name": student["Last Name"],
+        "First Name": student["First Name"],
+        Courses: {
+          [assignedCourse]: {
+            "Assigned Course": student["Assigned Course"],
+            Fraction: student["Fraction"],
+            "Assigned Course Name": student["Assigned Course Name"],
+            "Instructor Full Name": student["Instructor Full Name"]
+          }
+        }
+      };
+      taAllocationArr[student["ID"]] = finalDict;
+    }
   }
   return taAllocationArr;
 }

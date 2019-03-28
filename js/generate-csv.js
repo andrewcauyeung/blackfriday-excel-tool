@@ -191,6 +191,32 @@ function genStudentUserImport() {
   downloadHandler(csvArr, "NewStudentUser.csv");
 }
 
+function getSemester(date) {
+  var month = parseInt(date.split("/")[0]);
+  var year = parseInt(date.split("/")[1]);
+
+  //Fall
+  if (month == 1 || month == 12) {
+    if (month == 1) {
+      return "Fall " + (year - 1);
+    } else {
+      return "Fall " + year;
+    }
+  }
+  //Spring
+  else if (month == 6) {
+    return "Spring " + year;
+  }
+  //Summer
+  else if (month == 8) {
+    return "Summer " + year;
+  }
+  //None
+  else {
+    return "NOT AVAILABLE";
+  }
+}
+
 //Generates TA Eval CSV
 function genEvalImport() {
   var studentInfoArr = fileResults["student"];
@@ -203,6 +229,7 @@ function genEvalImport() {
     "TA Fraction",
     "Assigned Course",
     "TA Evaluation",
+    "",
     "Advisor Username",
     "Date",
     "Semester",
@@ -211,48 +238,78 @@ function genEvalImport() {
 
   for (var i = 1; i < studentInfoArr.length; i++) {
     //Needed to get additonal information
-    var advisor = studentInfoArr[i]["ADVISOR"];
+    // var advisor = studentInfoArr[i]["ADVISOR"];
+    // if (advisor.indexOf("=") != -1) {
+    //   advisor = advisor.substring(advisor.indexOf("=") + 1, advisor.length);
+    // } else if (advisor.indexOf("(") != -1) {
+    //   advisor = advisor.substring(0, advisor.indexOf("(")).trim();
+    // }
 
     //CSV information
     var sbid = studentInfoArr[i]["SBID"];
     var fullName =
       studentInfoArr[i]["FIRST NAME"] + " " + studentInfoArr[i]["LAST NAME"];
     var fraction = 1;
-    var course = "";
-    if (taAllocationDict[sbid] != undefined) {
-      fraction = taAllocationDict[sbid]["Fraction"];
-      course = taAllocationDict[sbid]["Assigned Course"];
-    }
-
-    var date = "12/1/2018";
-    var semester = "Fall 2018";
-    var validator = advisorUsername + "-" + semester + "-" + sbid;
 
     for (var x = 0; x < studentInfoArr[i]["TA EVALS"].length; x++) {
       //TA Evaluation
       var evalArr = studentInfoArr[i]["TA EVALS"][x];
-      if (evalArr[0] != '"' && evalArr[evalArr.length - 1] != '"') {
-        evalArr = '"' + studentInfoArr[i]["TA EVALS"][x] + '"';
-      }
       evalArr = evalArr.replace(/\r?\n|\r/g, "");
-    }
+      if (evalArr[0] != '"' && evalArr[evalArr.length - 1] != '"') {
+        evalArr = evalArr.replace(/"/g, '""');
+        evalArr = '"' + evalArr + '"';
+      }
 
-    var advisorUsername = "";
-    if (facultyDict[advisor] != undefined) {
-      var advisorUsername = facultyDict[advisor]["samaccountname"];
+      //Grab the date and semester
+      var date = evalArr.substring(1, 8).trim();
+      var semester = getSemester(date);
+
+      //Grabs the professor/advisor for the class
+      var tempAdv = evalArr.substring(evalArr.indexOf("-") + 2, evalArr.length);
+      var advisor = tempAdv
+        .substring(0, tempAdv.indexOf(" ", tempAdv.indexOf(" ") + 1))
+        .trim();
+      advisor = advisor.replace(",", "");
+
+      //Advisor/Professor username
+      var advisorUsername = "";
+      if (facultyDict[advisor] != undefined) {
+        var advisorUsername = facultyDict[advisor]["samaccountname"];
+      }
+
+      //Grab the Course from Eval
+      var courses = evalArr.match(/((CSE|ISE|cse|ise)\s?[0-9\.]+)/);
+      var course = "";
+      if (courses != null && courses != undefined) {
+        course = courses[0].replace(" ", "").toUpperCase();
+        course = course.substring(0, 6);
+        try {
+          for (key in taAllocationDict[sbid]["Courses"]) {
+            if (key.includes(course)) {
+              course = key;
+              fraction = taAllocationDict[sbid]["Courses"][key]["Fraction"];
+            }
+          }
+        } catch {
+          console.log("No student found");
+        }
+      }
+      var validator = advisorUsername + "-" + semester + "-" + sbid;
+
+      var row = [
+        sbid,
+        fullName,
+        fraction,
+        course,
+        evalArr,
+        advisor,
+        advisorUsername,
+        date,
+        semester,
+        validator + "\n"
+      ];
+      csvArr.push(row);
     }
-    var row = [
-      sbid,
-      fullName,
-      fraction,
-      course,
-      evalArr,
-      advisorUsername,
-      date,
-      semester,
-      validator + "\n"
-    ];
-    csvArr.push(row);
   }
   downloadHandler(csvArr, "NewTaEval.csv");
 }
