@@ -81,6 +81,7 @@ $(document).ready(function() {
             "comments"
           );
           appendCard("Student TA Eval. (WIP)", "genEvalImport()", "eval");
+          appendCard("Advisor Input", "genAdvisorInput()", "advisor");
           //genStudentGradeImport(fileResults[0]);
           //genStudentComment(fileResults[1]);
         }
@@ -282,6 +283,10 @@ function parseCSV(splitArray) {
       }
     }
   }
+  currentStudentInfo[splitArray[0][9]] = currentTA;
+  currentStudentInfo[splitArray[0][10]] = currentAdvisor;
+  currentStudentInfo[splitArray[0][11]] = currentComments;
+  studentDictArr.push(currentStudentInfo);
   return studentDictArr;
 }
 
@@ -304,6 +309,11 @@ function setupDictionary(splitArray, indexStart, indexEnd) {
   return currentStudentInfo;
 }
 
+/**
+ * Goes through the array and formats the information into a dictionary
+ * @param {*} splitArray - csv that is converted to an array
+ * @returns - dictionary of the student information
+ */
 function parseGradeCSV(splitArray) {
   var currentStudentInfo = {};
   var currentCourseInfo = {};
@@ -317,6 +327,9 @@ function parseGradeCSV(splitArray) {
           console.log(currentStudentInfo);
           var temp = setupDictionary(splitArray, 0, 5);
           temp["Courses"] = [];
+          if (currentStudentInfo["Courses"] != undefined) {
+            currentStudentInfo["Courses"].push(currentCourseInfo);
+          }
           studentDictArr.push(currentStudentInfo);
           console.log(studentDictArr);
           currentStudentInfo = temp;
@@ -348,6 +361,12 @@ function parseGradeCSV(splitArray) {
       }
     }
   }
+
+  //Updates the dictionary with the last student info
+  if (currentStudentInfo["Courses"] != undefined) {
+    currentStudentInfo["Courses"].push(currentCourseInfo);
+  }
+  studentDictArr.push(currentStudentInfo);
   return studentDictArr;
 }
 
