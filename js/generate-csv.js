@@ -59,18 +59,16 @@ function genStudentGradeImport() {
         grade = "";
       }
 
-      //Fitler undergraduate course out
-      if (parseInt(studentInfoArr[i]["Courses"][x]["Number"], 10) > 500) {
-        var courseNumber = parseInt(
+      //Trim undergraduate course
+      var courseNumber = studentInfoArr[i]["Courses"][x]["Number"].trim();
+      if (parseInt(studentInfoArr[i]["Courses"][x]["Number"], 10) > 99) {
+        courseNumber = parseInt(
           studentInfoArr[i]["Courses"][x]["Number"],
           10
         ).toString();
-        var course = studentInfoArr[i]["Courses"][x]["Course"] + courseNumber;
-      } else {
-        continue;
       }
-
-      var courseName = studentInfoArr[i]["Courses"][x]["Title"];
+      var course = studentInfoArr[i]["Courses"][x]["Course"] + courseNumber;
+      var courseName = '"' + studentInfoArr[i]["Courses"][x]["Title"] + '"';
       var uniqueField = studentID + semester + course;
       var row = [
         studentID,
@@ -330,15 +328,37 @@ function genStudentCommentsImport() {
 
 //Generate Course CSV
 function genCourseImport() {
-  studentInfoArr = fileResults[0];
-  var coursesArr = ["", "Course Number", "Course Name", "Track"];
-  for (var i = 0; i < studentInfoArr.length; i++) {
-    var courses = studentInfoArr[i][Courses];
-    for (var x = 0; x < courses.length; x++) {
-      var courseName = courses[x]["Course"] + courses[x]["Number"];
-      var courseTitle = courses[x]["Title"];
+  studentInfoArr = fileResults["grades"];
+  var csvArr = ["", "Course Number", "Course Name", "Track\n"];
+  var tempArr = {};
+  for (var i = 1; i < studentInfoArr.length; i++) {
+    var courses = studentInfoArr[i]["Courses"];
+    for (var x = 1; x < courses.length; x++) {
+      //if (parseInt(courses[x]["Number"], 10) > 0) {
+      var course = courses[x]["Course"];
+      if (isNaN(course[course.length - 1])) {
+        course = course.substring(0, course.length);
+      }
+      var number = courses[x]["Number"].trim();
+      if (parseInt(courses[x]["Number"], 10) > 99) {
+        number = number.replace(/\D/g, "").trim();
+      }
+      var courseNumber = course + number;
+      var courseTitle = '"' + courses[x]["Title"] + '"';
+      var track = "";
+      if (!(courseNumber in tempArr)) {
+        tempArr[courseNumber] = {
+          "Course Number": courseNumber,
+          "Course Title": courseTitle,
+          Track: track
+        };
+        var row = [courseNumber, courseTitle, track + "\n"];
+        csvArr.push(row);
+      }
+      //}
     }
   }
+  downloadHandler(csvArr, "courses.csv");
 }
 
 //Generate Advisor Input CSV

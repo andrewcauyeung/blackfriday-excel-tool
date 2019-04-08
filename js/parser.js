@@ -82,6 +82,7 @@ $(document).ready(function() {
           );
           appendCard("Student TA Eval. (WIP)", "genEvalImport()", "eval");
           appendCard("Advisor Input", "genAdvisorInput()", "advisor");
+          appendCard("Course Input", "genCourseImport()", "course");
           //genStudentGradeImport(fileResults[0]);
           //genStudentComment(fileResults[1]);
         }
