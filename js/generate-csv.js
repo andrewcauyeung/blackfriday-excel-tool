@@ -363,6 +363,51 @@ function genCourseImport() {
 
 //Generate Advisor Input CSV
 function genAdvisorInput() {
+  function genRow(advisor, advisorInput, csvArr) {
+    var date = "";
+
+    //Remove the Acad=
+    console.log(advisor);
+    console.log(advisorInput);
+    if (advisor.includes("=")) {
+      advisor = advisor.split("=")[1].trim();
+    }
+
+    //CASE: Advisor Input is not empty
+    if (advisorInput != "" && advisorInput != undefined) {
+      advisorInput = advisorInput.replace(/"/g, '""');
+      advisorInput = '"' + advisorInput + '"';
+      date = advisorInput.substring(1, 8).trim();
+    }
+    //CASE: Advisor Input is empty
+    else {
+      date = "01/2019";
+      advisorInput = "";
+    }
+
+    //Advisor/Professor username
+    var advisorUsername = "";
+    if (facultyDict[advisor] != undefined) {
+      advisorUsername = facultyDict[advisor]["samaccountname"];
+    }
+
+    //Get Semester
+    var semester = getSemester(date);
+
+    //Create Validator
+    var validator = advisorUsername + "-" + semester + "-" + sbid;
+
+    var row = [
+      sbid,
+      advisorInput,
+      advisor,
+      advisorUsername,
+      date,
+      semester,
+      validator + "\n"
+    ];
+    csvArr.push(row);
+  }
   studentInfoArr = fileResults["student"];
   var facultyDict = fileResults["faculty"];
 
@@ -377,45 +422,19 @@ function genAdvisorInput() {
     "Adv Eval Unique Validator\n"
   ];
 
-  for (var i = 0; i < studentInfoArr.length; i++) {
+  for (var i = 1; i < studentInfoArr.length; i++) {
     var sbid = studentInfoArr[i]["SBID"];
+    var advisor = studentInfoArr[i]["ADVISOR"];
+
+    if (studentInfoArr[i]["Advisor Input"].length == 0) {
+      genRow(advisor, studentInfoArr[i]["Advisor Input"][0], csvArr);
+    }
+
     for (var x = 0; x < studentInfoArr[i]["Advisor Input"].length; x++) {
       //Gets the advisor input
       var advisorInput = studentInfoArr[i]["Advisor Input"][x];
       advisorInput = advisorInput.replace(/\r?\n|\r/g, "");
-      if (
-        advisorInput[0] != '"' &&
-        advisorInput[advisorInput.length - 1] != '"'
-      ) {
-        advisorInput = advisorInput.replace(/"/g, '""');
-        advisorInput = '"' + advisorInput + '"';
-      }
-      var date = advisorInput.substring(1, 8).trim();
-      var advisorArr = advisorInput.split("-");
-      var advisor = advisorArr[1].replace(" ", "").trim();
-
-      //Advisor/Professor username
-      var advisorUsername = "";
-      if (facultyDict[advisor] != undefined) {
-        advisorUsername = facultyDict[advisor]["samaccountname"];
-      }
-
-      //Get Semester
-      var semester = getSemester(date);
-
-      //Create Validator
-      var validator = advisorUsername + "-" + semester + "-" + sbid;
-
-      var row = [
-        sbid,
-        advisorInput,
-        advisor,
-        advisorUsername,
-        date,
-        semester,
-        validator + "\n"
-      ];
-      csvArr.push(row);
+      genRow(advisor, advisorInput, csvArr);
     }
   }
   downloadHandler(csvArr, "NewAdvInput.csv");
