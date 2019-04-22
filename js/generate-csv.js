@@ -363,6 +363,7 @@ function genCourseImport() {
 
 //Generate Advisor Input CSV
 function genAdvisorInput() {
+  //Creates the rows in the CSV file
   function genRow(advisor, advisorInput, csvArr) {
     var date = "";
 
@@ -378,6 +379,11 @@ function genAdvisorInput() {
       advisorInput = advisorInput.replace(/"/g, '""');
       advisorInput = '"' + advisorInput + '"';
       date = advisorInput.substring(1, 8).trim();
+      //Grab the advisor from the input
+      var advisorArr = advisorInput.split("-");
+      if (!advisorArr[1].includes("Result")) {
+        advisor = advisorArr[1].replace(" ", "").trim();
+      }
     }
     //CASE: Advisor Input is empty
     else {
@@ -407,6 +413,9 @@ function genAdvisorInput() {
       validator + "\n"
     ];
     csvArr.push(row);
+
+    return semester;
+    ``;
   }
   studentInfoArr = fileResults["student"];
   var facultyDict = fileResults["faculty"];
@@ -425,16 +434,30 @@ function genAdvisorInput() {
   for (var i = 1; i < studentInfoArr.length; i++) {
     var sbid = studentInfoArr[i]["SBID"];
     var advisor = studentInfoArr[i]["ADVISOR"];
+    var hasCurrentSemInput = false;
 
     if (studentInfoArr[i]["Advisor Input"].length == 0) {
-      genRow(advisor, studentInfoArr[i]["Advisor Input"][0], csvArr);
+      var semester = genRow(
+        advisor,
+        studentInfoArr[i]["Advisor Input"][0],
+        csvArr
+      );
+      if (semester == "Fall 2018") {
+        hasCurrentSemInput = true;
+      }
+    } else {
+      for (var x = 0; x < studentInfoArr[i]["Advisor Input"].length; x++) {
+        //Gets the advisor input
+        var advisorInput = studentInfoArr[i]["Advisor Input"][x];
+        advisorInput = advisorInput.replace(/\r?\n|\r/g, "");
+        var semester = genRow(advisor, advisorInput, csvArr);
+        if (semester == "Fall 2018") {
+          hasCurrentSemInput = true;
+        }
+      }
     }
-
-    for (var x = 0; x < studentInfoArr[i]["Advisor Input"].length; x++) {
-      //Gets the advisor input
-      var advisorInput = studentInfoArr[i]["Advisor Input"][x];
-      advisorInput = advisorInput.replace(/\r?\n|\r/g, "");
-      genRow(advisor, advisorInput, csvArr);
+    if (hasCurrentSemInput == false) {
+      genRow(advisor, "", csvArr);
     }
   }
   downloadHandler(csvArr, "NewAdvInput.csv");
