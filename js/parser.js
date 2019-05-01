@@ -1,8 +1,13 @@
 var fileResults = {};
+var currentSemester = "";
+var currentYear = "";
 
 $(document).ready(function() {
   function submitFile() {
     document.getElementById("input").files;
+    currentSemester = document.getElementById("semester-select").value + " ";
+    document.getElementById("year-select").value;
+    currentYear = document.getElementById("year-select").value;
     var count = document.getElementById("input").files.length;
     for (var i = 0; i < document.getElementById("input").files.length; i++) {
       readFile(
@@ -133,6 +138,11 @@ function myTrim(x) {
   return x.replace(/^\s+|\s+$/gm, "");
 }
 
+/**
+ * Parses the TA Allocation
+ * @param {*} splitArray - array format of the ta allocation csv
+ * @returns - dictionary format of the ta allocation
+ */
 function parseTaAllocation(splitArray) {
   var taAllocationArr = {};
 
@@ -371,6 +381,11 @@ function parseGradeCSV(splitArray) {
   return studentDictArr;
 }
 
+/**
+ * Parses the status txt in array fromat
+ * @param {*} splitArray - array format of the status txt split by :
+ * @returns - dictionary format of status information
+ */
 function parseStatus(splitArray) {
   var currentStudentInfo = {};
   var studentDictArr = [];
@@ -391,6 +406,11 @@ function parseStatus(splitArray) {
   return studentDictArr;
 }
 
+/**
+ * Fix the smester formatting
+ * @param {*} semester - string format of the semester
+ * @returns - string format of semester fixed
+ */
 function fixSemester(semester) {
   var temp = semester.split("");
   var season = "";
@@ -405,11 +425,14 @@ function fixSemester(semester) {
   return season + " " + year;
 }
 
+/**
+ * Returns a boolean depending on if the course number is below 500
+ * @param {*} courseNumber - int of the the course number
+ * @returns - true if greater than 500 false is less than
+ */
 function filterUndergrad(courseNumber) {
   if (courseNumber < 500) {
     return false;
   }
   return true;
 }
-
-function genStudentsImport(studentInfoArr) {}

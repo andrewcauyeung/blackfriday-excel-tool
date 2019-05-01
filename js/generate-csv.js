@@ -1,4 +1,9 @@
-//Download Button Handler
+/**
+ * Download button handler for import files
+ * @param {*} csvArr - array format of the csv to be uploaded
+ * @param {*} filename - string of the filenaame
+ * @param {*} tableSwitch
+ */
 function downloadHandler(csvArr, filename, tableSwitch) {
   var a = document.createElement("a");
   a.href = "data:text/csv;charset=utf-8," + encodeURIComponent(csvArr);
@@ -9,6 +14,9 @@ function downloadHandler(csvArr, filename, tableSwitch) {
   a.click();
 }
 
+/**
+ * Setups the cards with the download links
+ */
 function setupDownload() {
   var cardArr = $(".card-content");
   for (var i = 0; i < cardArr.length; i++) {
@@ -16,10 +24,16 @@ function setupDownload() {
   }
 }
 
-//Generates Student Grades CSV
+/**
+ * Generate student grades CSV
+ */
 function genStudentGradeImport() {
   studentInfoArr = fileResults["grades"];
-  //Adds a space in the unique ID
+  /**
+   * Properly formats the semster string for the import
+   * @param {*} semester - string of semester gotten  from csv
+   * @returns - string of semester properly formtted with space
+   */
   function fixSemester(semester) {
     var temp = semester.split("");
     var season = "";
@@ -86,7 +100,9 @@ function genStudentGradeImport() {
   downloadHandler(csvArr, "grades.csv");
 }
 
-//Generates Student Status CSV
+/**
+ * Generates student status CSV
+ */
 function genStudentStatusImport() {
   studentInfoArr = fileResults["status"];
   var csvArr = ["", "ID", "Status", "Semester", "Validator\n"];
@@ -96,7 +112,7 @@ function genStudentStatusImport() {
     if (status[0] != '"' && status[status.length - 1] != '"') {
       status = '"' + studentInfoArr[i]["Status"] + '"';
     }
-    var semester = "Fall 2018";
+    var semester = currentSemester;
     var validator = studentID + "-" + semester;
     var row = [studentID, status, semester, validator + "\n"];
     csvArr.push(row);
@@ -105,7 +121,9 @@ function genStudentStatusImport() {
   downloadHandler(csvArr, "status.csv");
 }
 
-//Geneartes Student Adder CSV
+/**
+ * Generates the student adder CSV
+ */
 function genStudentAdderImport() {
   var studentInfoArr = fileResults["student"];
   var csvArr = [
@@ -159,7 +177,9 @@ function genStudentAdderImport() {
   downloadHandler(csvArr, "NewStudentAdder.csv");
 }
 
-//Generates Student User CSV
+/**
+ * Genearates the student user CSV
+ */
 function genStudentUserImport() {
   var studentInfoArr = fileResults["student"];
   var netidArr = fileResults["grad"];
@@ -189,6 +209,11 @@ function genStudentUserImport() {
   downloadHandler(csvArr, "NewStudentUser.csv");
 }
 
+/**
+ * Gets the the semester based on the date given
+ * @param {*} date - string format of the date
+ * @returns - string format of the semester
+ */
 function getSemester(date) {
   var month = parseInt(date.split("/")[0]);
   var year = parseInt(date.split("/")[1]);
@@ -215,7 +240,9 @@ function getSemester(date) {
   }
 }
 
-//Generates TA Eval CSV
+/**
+ * Generates the TA Evaluation CSV
+ */
 function genEvalImport() {
   var studentInfoArr = fileResults["student"];
   var taAllocationDict = fileResults["ta-allocation"];
@@ -304,7 +331,9 @@ function genEvalImport() {
   downloadHandler(csvArr, "NewTaEval.csv");
 }
 
-//Generate Student Comments CSV
+/**
+ * Generate student comments CSV
+ */
 function genStudentCommentsImport() {
   studentInfoArr = fileResults["student"];
   var commentsArr = ["", "Student ID", "Comment", "Date", "Validator\n"];
@@ -326,7 +355,9 @@ function genStudentCommentsImport() {
   downloadHandler(commentsArr, "NewStudentComments.csv");
 }
 
-//Generate Course CSV
+/**
+ * Generate Courses CSV
+ */
 function genCourseImport() {
   studentInfoArr = fileResults["grades"];
   var csvArr = ["", "Course Number", "Course Name", "Track\n"];
@@ -361,7 +392,9 @@ function genCourseImport() {
   downloadHandler(csvArr, "courses.csv");
 }
 
-//Generate Advisor Input CSV
+/**
+ * Generate advisor input csv
+ */
 function genAdvisorInput() {
   //Creates the rows in the CSV file
   function genRow(advisor, advisorInput, csvArr) {
@@ -387,7 +420,15 @@ function genAdvisorInput() {
     }
     //CASE: Advisor Input is empty
     else {
-      date = "01/2019";
+      if (currentSemester.includes("Fall")) {
+        date = "01/" + currentYear;
+      } else if (currentSemester.includes("Spring")) {
+        date = "06/" + currentYear;
+      } else if (currentSemester.includes("Summer")) {
+        date = "08/" + currentYear;
+      } else {
+        date = "";
+      }
       advisorInput = "";
     }
 
@@ -442,7 +483,7 @@ function genAdvisorInput() {
         studentInfoArr[i]["Advisor Input"][0],
         csvArr
       );
-      if (semester == "Fall 2018") {
+      if (semester == currentSemester) {
         hasCurrentSemInput = true;
       }
     } else {
@@ -451,7 +492,7 @@ function genAdvisorInput() {
         var advisorInput = studentInfoArr[i]["Advisor Input"][x];
         advisorInput = advisorInput.replace(/\r?\n|\r/g, "");
         var semester = genRow(advisor, advisorInput, csvArr);
-        if (semester == "Fall 2018") {
+        if (semester == currentSemester) {
           hasCurrentSemInput = true;
         }
       }
